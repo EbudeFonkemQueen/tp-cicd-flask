@@ -1,0 +1,35 @@
+# Hooks run automatically before each commit.
+# The whole team shares exactly the same configuration (versioned file).
+repos:
+  # --- Basic file hygiene ---
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace        # removes trailing whitespace
+      - id: end-of-file-fixer          # ensures a final blank line
+      - id: check-yaml                 # checks YAML file syntax
+      - id: check-added-large-files    # blocks overly large files
+      - id: check-merge-conflict       # detects forgotten conflict markers
+
+  # --- Python lint + format (ruff, already known from Lab 1) ---
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff                       # lint
+        args: [--fix]                  # auto-fixes what can be fixed
+      - id: ruff-format                # code formatting
+
+  # --- Secret detection (Gitleaks): prevents a leak BEFORE the commit ---
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+# --- Local hook: run pytest before every push ---
+  - repo: local
+    hooks:
+      - id: pytest-before-push
+        name: Pytest tests (before push)
+        entry: pytest -q
+        language: system
+        pass_filenames: false
+        stages: [pre-push]      # only runs on a git push
